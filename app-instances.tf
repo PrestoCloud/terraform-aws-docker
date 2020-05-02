@@ -4,11 +4,11 @@ provider "aws" {
   # Read the rest from env variables
 }
 
-# Create the SWARM master node
-#TODO Allow more than one master
-resource "aws_instance" "swarm_master" {
-  ami = data.aws_ami.ubuntu.id
-  instance_type = var.instace_type
+# Create the SWARM manager node
+#TODO Allow more than one manager
+resource "aws_instance" "swarm_manager" {
+  ami = coalesce(var.ami_id, data.aws_ami.ubuntu.id)
+  instance_type = var.instance_type
   vpc_security_group_ids = [
     aws_security_group.allow_http_traffic.id,
     aws_security_group.ssh_from_other_ec2_instances.id,
@@ -20,7 +20,7 @@ resource "aws_instance" "swarm_master" {
     host = coalesce(self.public_ip, self.private_ip)
     type = "ssh"
     user = "ubuntu"
-    private_key = "${file("${path.module}/id_rsa")}"
+    private_key = file("${path.module}/id_rsa")
   }
   provisioner "remote-exec" {
     inline = [
@@ -35,7 +35,7 @@ resource "aws_instance" "swarm_master" {
     ]
   }
 
-  # Mount the project root inside the master node
+  # Mount the project root inside the manager node
   provisioner "file" {
     source = "proj"
     destination = "/home/ubuntu/"
@@ -48,10 +48,12 @@ resource "aws_instance" "swarm_master" {
 
 resource "aws_instance" "swarm_worker" {
   count = 2
-  ami = data.aws_ami.ubuntu.id
-  instance_type = var.instace_type
+  ami = coalesce(var.ami_id, data.aws_ami.ubuntu.id)
+  instance_type = var.instance_type
   vpc_security_group_ids = [
-    aws_security_group.allow_http_traffic.id]
+    aws_security_group.allow_http_traffic.id,
+    aws_security_group.ssh_from_other_ec2_instances.id
+  ]
   key_name = aws_key_pair.deployer.key_name
   subnet_id = aws_subnet.public_subnets[0].id
   associate_public_ip_address = true
@@ -59,7 +61,7 @@ resource "aws_instance" "swarm_worker" {
     host = coalesce(self.public_ip, self.private_ip)
     type = "ssh"
     user = "ubuntu"
-    private_key = "${file("${path.module}/id_rsa")}"
+    private_key = file("${path.module}/id_rsa")
   }
   provisioner "file" {
     source = "id_rsa"
@@ -76,10 +78,10 @@ resource "aws_instance" "swarm_worker" {
       "sudo chmod 400 /home/ubuntu/manager_connection_key.pem",
 
       # Copy the Swarm join token from the manager node to the current worker node
-      "sudo scp -o StrictHostKeyChecking=no -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -i manager_connection_key.pem ubuntu@${aws_instance.swarm_master.private_ip}:/home/ubuntu/token .",
+      "sudo scp -o StrictHostKeyChecking=no -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -i manager_connection_key.pem ubuntu@${aws_instance.swarm_manager.private_ip}:/home/ubuntu/token .",
 
       # Join the swarm as a worker
-      "sudo docker swarm join --token $(cat /home/ubuntu/token) ${aws_instance.swarm_master.private_ip}:2377",
+      "sudo docker swarm join --token $(cat /home/ubuntu/token) ${aws_instance.swarm_manager.private_ip}:2377",
 
       # Remove the SSH key to access the manager node, from the disk of the worker for extra security
       "sudo rm /home/ubuntu/manager_connection_key.pem"

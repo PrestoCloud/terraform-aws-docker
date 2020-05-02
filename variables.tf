@@ -1,7 +1,7 @@
 variable "region" {
-  default = "us-east-1"
+	default = "us-west-2"
 }
-variable "instace_type" {
+variable "instance_type" {
   default = "t2.micro"
   description = "The AWS EC2 instance type. Defaults to t2.micro if empty"
 }
@@ -10,8 +10,12 @@ variable "vpc_cidr_range" {
   default = "10.0.0.0/16"
 }
 
+variable "ami_id" {
+	default = "ami-0d1cd67c26f5fca19"
+}
+
 locals {
-  stack_name = "Docker Swarm"
+  stack_name = "Presto Swarm"
   cidr_range = var.vpc_cidr_range
   public_subnets = [
     "10.0.1.0/24",
