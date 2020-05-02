@@ -2,11 +2,6 @@ resource "aws_security_group" "ssh_from_other_ec2_instances" {
   vpc_id = aws_vpc.main.id
 }
 
-# Retrieve current environment IP
-data "http" "myip" {
-  url = "http://ipv4.icanhazip.com"
-}
-
 resource "aws_security_group_rule" "ssh_from_other_ec2_instances" {
   type = "ingress"
   from_port = 22
@@ -16,13 +11,57 @@ resource "aws_security_group_rule" "ssh_from_other_ec2_instances" {
   security_group_id = aws_security_group.ssh_from_other_ec2_instances.id
   source_security_group_id = aws_security_group.ssh_from_other_ec2_instances.id
 }
+
+resource "aws_security_group_rule" "swarm_ports" {
+  type = "ingress"
+  from_port = 2377
+  to_port = 2377
+  protocol = "tcp"
+  # Opening to 0.0.0.0/0 can lead to security vulnerabilities.
+  security_group_id = aws_security_group.ssh_from_other_ec2_instances.id
+  source_security_group_id = aws_security_group.ssh_from_other_ec2_instances.id
+}
+
+resource "aws_security_group_rule" "mesh_routing_0" {
+  type = "ingress"
+  from_port = 7946
+  to_port = 7946
+  protocol = "tcp"
+  # Opening to 0.0.0.0/0 can lead to security vulnerabilities.
+  security_group_id = aws_security_group.ssh_from_other_ec2_instances.id
+  source_security_group_id = aws_security_group.ssh_from_other_ec2_instances.id
+}
+resource "aws_security_group_rule" "mesh_routing_1" {
+  type = "ingress"
+  from_port = 4789
+  to_port = 4789
+  protocol = "udp"
+  # Opening to 0.0.0.0/0 can lead to security vulnerabilities.
+  security_group_id = aws_security_group.ssh_from_other_ec2_instances.id
+  source_security_group_id = aws_security_group.ssh_from_other_ec2_instances.id
+}
+
+resource "aws_security_group_rule" "mesh_routing_2" {
+  type = "ingress"
+  from_port = 7946
+  to_port = 7946
+  protocol = "udp"
+  # Opening to 0.0.0.0/0 can lead to security vulnerabilities.
+  security_group_id = aws_security_group.ssh_from_other_ec2_instances.id
+  source_security_group_id = aws_security_group.ssh_from_other_ec2_instances.id
+}
+
+# Retrieve current environment IP
+data "http" "myip" {
+  url = "http://ipv4.icanhazip.com"
+}
+
 resource "aws_security_group_rule" "ssh_from_my_computer" {
   type = "ingress"
   from_port = 22
   to_port = 22
   protocol = "tcp"
-  cidr_blocks = [
-    "${chomp(data.http.myip.body)}/32"]
+  cidr_blocks = ["${chomp(data.http.myip.body)}/32"]
   security_group_id = aws_security_group.ssh_from_other_ec2_instances.id
 }
 

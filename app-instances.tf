@@ -11,7 +11,7 @@ resource "aws_instance" "swarm_manager" {
   instance_type = var.instance_type
   vpc_security_group_ids = [
     aws_security_group.allow_http_traffic.id,
-    aws_security_group.ssh_from_other_ec2_instances.id,
+    aws_security_group.ssh_from_other_ec2_instances.id
   ]
   associate_public_ip_address = true
   key_name = aws_key_pair.deployer.key_name
@@ -24,6 +24,7 @@ resource "aws_instance" "swarm_manager" {
   }
   provisioner "remote-exec" {
     inline = [
+      "sudo hostnamectl set-hostname ${var.server_hostname}",
       "sudo apt-get -q update",
       "sudo apt-get install -q -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common",
       "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
@@ -69,6 +70,7 @@ resource "aws_instance" "swarm_worker" {
   }
   provisioner "remote-exec" {
     inline = [
+      "sudo hostnamectl set-hostname ${var.server_hostname}",
       "sudo apt-get update",
       "sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common",
       "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
