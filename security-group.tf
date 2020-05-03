@@ -93,3 +93,18 @@ resource "aws_security_group" "allow_http_traffic" {
   }
 }
 
+resource "aws_security_group" "trust_internal_traffic" {
+  name = "${local.stack_name}-trust-internal-traffic"
+  description = "Allow all traffic between servers in this group"
+  vpc_id = aws_vpc.main.id
+}
+
+resource "aws_security_group_rule" "trust_internal_traffic" {
+  type = "ingress"
+  protocol = "all"
+  from_port = 0
+  to_port = 0
+  cidr_blocks = ["10.0.0.0/8"]
+  security_group_id = aws_security_group.trust_internal_traffic.id
+}
+

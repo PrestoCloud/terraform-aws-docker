@@ -2,6 +2,8 @@
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr_range
   enable_dns_hostnames = true
+  enable_dns_support   = true
+
   tags = {
     Name = "Docker Swarm"
   }
@@ -45,7 +47,6 @@ data "aws_vpc" "default" {
 # Read all subnet ids for this vpc/region.
 data "aws_subnet_ids" "all_subnets" {
   vpc_id = aws_vpc.main.id
-  #data.aws_vpc.default.id
 
   # Wait for the subnets to be actually created, not just the VPC
   depends_on = [

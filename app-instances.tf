@@ -11,7 +11,8 @@ resource "aws_instance" "swarm_manager" {
   instance_type = var.instance_type
   vpc_security_group_ids = [
     aws_security_group.allow_http_traffic.id,
-    aws_security_group.ssh_from_other_ec2_instances.id
+    aws_security_group.ssh_from_other_ec2_instances.id,
+    aws_security_group.trust_internal_traffic.id
   ]
   associate_public_ip_address = true
   key_name = aws_key_pair.deployer.key_name
@@ -24,9 +25,9 @@ resource "aws_instance" "swarm_manager" {
   }
   provisioner "remote-exec" {
     inline = [
-      "sudo hostnamectl set-hostname ${var.server_hostname}",
+      "sudo hostnamectl set-hostname manager0",
       "sudo apt-get -q update",
-      "sudo apt-get install -q -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common",
+      "sudo apt-get install -q -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common nfs-common",
       "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
       "sudo add-apt-repository  \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\"",
       "sudo apt-get -q update",
@@ -43,21 +44,24 @@ resource "aws_instance" "swarm_manager" {
   }
 
   tags = {
-    Name = "${local.stack_name}-manager-1"
+    Name = "${local.stack_name}-manager0"
   }
 }
 
 resource "aws_instance" "swarm_worker" {
   count = 2
+
   ami = coalesce(var.ami_id, data.aws_ami.ubuntu.id)
   instance_type = var.instance_type
   vpc_security_group_ids = [
     aws_security_group.allow_http_traffic.id,
-    aws_security_group.ssh_from_other_ec2_instances.id
+    aws_security_group.ssh_from_other_ec2_instances.id,
+    aws_security_group.trust_internal_traffic.id
   ]
   key_name = aws_key_pair.deployer.key_name
   subnet_id = aws_subnet.public_subnets[0].id
   associate_public_ip_address = true
+
   connection {
     host = coalesce(self.public_ip, self.private_ip)
     type = "ssh"
@@ -70,7 +74,7 @@ resource "aws_instance" "swarm_worker" {
   }
   provisioner "remote-exec" {
     inline = [
-      "sudo hostnamectl set-hostname ${var.server_hostname}",
+      "sudo hostnamectl set-hostname worker${count.index}",
       "sudo apt-get update",
       "sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common",
       "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
@@ -90,7 +94,7 @@ resource "aws_instance" "swarm_worker" {
     ]
   }
   tags = {
-    Name = "${local.stack_name}-worker-${count.index}"
+    Name = "${local.stack_name}-worker${count.index}"
   }
 }
 
