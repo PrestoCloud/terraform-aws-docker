@@ -4,6 +4,11 @@ resource "aws_efs_file_system" "efs" {
   lifecycle_policy {
     transition_to_ia = "AFTER_7_DAYS"
   }
+
+
+  tags = {
+    Name = "${local.stack_name}"
+  }
 }
 
 resource "aws_efs_mount_target" "efs" {

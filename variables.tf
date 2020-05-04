@@ -7,7 +7,7 @@ variable "instance_type" {
 }
 variable "vpc_cidr_range" {
   description = "The CIDR block (range) for the subnet that will be created. Defaults to 10.0.0.0/16"
-  default = "10.0.0.0/16"
+  default = "10.10.0.0/16"
 }
 
 variable "ami_id" {
@@ -18,13 +18,13 @@ locals {
   stack_name = "Presto Swarm"
   cidr_range = var.vpc_cidr_range
   public_subnets = [
-    "10.0.1.0/24",
-    "10.0.2.0/24",
-    "10.0.3.0/24",
+    "10.10.1.0/24",
+    "10.10.2.0/24",
+    "10.10.3.0/24",
   ]
   private_subnets = [
-    "10.0.10.0/24",
-    "10.0.11.0/24",
-    "10.0.13.0/24",
+    "10.10.10.0/24",
+    "10.10.11.0/24",
+    "10.10.13.0/24",
   ]
 }
