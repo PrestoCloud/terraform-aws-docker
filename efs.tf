@@ -5,7 +5,6 @@ resource "aws_efs_file_system" "efs" {
     transition_to_ia = "AFTER_7_DAYS"
   }
 
-
   tags = {
     Name = "${local.stack_name}"
   }

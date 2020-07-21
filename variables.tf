@@ -1,3 +1,17 @@
+# These are the customizable variables.  Override them in local.tfvars instead of here.
+
+variable "domain_name" {
+  description = "Top level domain name, DNS should be pointed at AWS. "
+  default = "example.com"
+}
+
+# AWS
+variable "access_key" {
+	default = ""
+}
+variable "secret_key" {
+	default = ""
+}
 variable "region" {
 	default = "us-west-2"
 }

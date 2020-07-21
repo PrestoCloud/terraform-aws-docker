@@ -93,6 +93,34 @@ resource "aws_security_group" "allow_http_traffic" {
   }
 }
 
+/* Default security group */
+resource "aws_security_group" "allow_https_traffic" {
+  name = "${local.stack_name}-https-in"
+  description = "Allow all HTTPS traffic in and out on port 443"
+  vpc_id = aws_vpc.main.id
+  ingress {
+    from_port = 443
+    to_port = 443
+    protocol = "tcp"
+    cidr_blocks = [
+      "0.0.0.0/0"]
+    self = true
+  }
+
+  egress {
+    from_port = "0"
+    to_port = "0"
+    protocol = "-1"
+    cidr_blocks = [
+      "0.0.0.0/0"]
+    self = true
+  }
+
+  tags = {
+    Name = "${local.stack_name}-https"
+  }
+}
+
 resource "aws_security_group" "trust_internal_traffic" {
   name = "${local.stack_name}-trust-internal-traffic"
   description = "Allow all traffic between servers in this group"

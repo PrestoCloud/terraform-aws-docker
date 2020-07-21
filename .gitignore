@@ -1,7 +1,10 @@
 ssh/
 *.pem
+*.tfstate.*.backup
 *.tfstate.backup
 *.tfstate
+
+local.tfvars
 
 # Don't version control the actual SSH keys
 id_rsa

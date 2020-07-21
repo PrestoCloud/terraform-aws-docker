@@ -2,6 +2,8 @@
 provider "aws" {
   region = var.region
   # Read the rest from env variables
+  access_key  = var.access_key
+  secret_key  = var.secret_key
 }
 
 # Create the SWARM manager node
@@ -11,6 +13,7 @@ resource "aws_instance" "swarm_manager" {
   instance_type = var.instance_type
   vpc_security_group_ids = [
     aws_security_group.allow_http_traffic.id,
+    aws_security_group.allow_https_traffic.id,
     aws_security_group.ssh_from_other_ec2_instances.id,
     aws_security_group.trust_internal_traffic.id
   ]
@@ -55,6 +58,7 @@ resource "aws_instance" "swarm_worker" {
   instance_type = var.instance_type
   vpc_security_group_ids = [
     aws_security_group.allow_http_traffic.id,
+    aws_security_group.allow_https_traffic.id,
     aws_security_group.ssh_from_other_ec2_instances.id,
     aws_security_group.trust_internal_traffic.id
   ]
