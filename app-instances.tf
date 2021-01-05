@@ -10,7 +10,8 @@ provider "aws" {
 #TODO Allow more than one manager
 resource "aws_instance" "swarm_manager" {
   ami = coalesce(var.ami_id, data.aws_ami.ubuntu.id)
-  instance_type = var.instance_type
+  # instance_type = var.instance_type
+  instance_type = "t3.medium"
   vpc_security_group_ids = [
     aws_security_group.allow_http_traffic.id,
     aws_security_group.allow_https_traffic.id,
@@ -52,7 +53,7 @@ resource "aws_instance" "swarm_manager" {
 }
 
 resource "aws_instance" "swarm_worker" {
-  count = 2
+  count = 0
 
   ami = coalesce(var.ami_id, data.aws_ami.ubuntu.id)
   instance_type = var.instance_type

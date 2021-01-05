@@ -9,3 +9,7 @@ output "wildcard_cert_key" {
 output "wildcard_cert_pem" {
   value = acme_certificate.certificate.certificate_pem
 }
+
+output "domain_name" {
+  value = var.domain_name
+}
