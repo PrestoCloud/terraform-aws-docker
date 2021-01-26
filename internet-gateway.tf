@@ -17,7 +17,7 @@ resource "aws_route_table" "route_table" {
   }
 
   tags = {
-    Name = "${local.stack_name}"
+    Name = local.stack_name
   }
 }
 

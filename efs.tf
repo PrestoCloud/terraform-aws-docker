@@ -6,7 +6,7 @@ resource "aws_efs_file_system" "efs" {
   }
 
   tags = {
-    Name = "${local.stack_name}"
+    Name = local.stack_name
   }
 }
 
