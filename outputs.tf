@@ -7,7 +7,8 @@ output "wildcard_cert_key" {
 }
 
 output "wildcard_cert_pem" {
-  value = acme_certificate.certificate.certificate_pem
+  # value = acme_certificate.certificate.certificate_pem
+  value = "${acme_certificate.certificate.certificate_pem}${acme_certificate.certificate.issuer_pem}"
 }
 
 output "domain_name" {
