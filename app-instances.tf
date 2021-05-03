@@ -25,7 +25,7 @@ resource "aws_instance" "swarm_manager" {
     host = coalesce(self.public_ip, self.private_ip)
     type = "ssh"
     user = "ubuntu"
-    private_key = file("${path.module}/id_rsa")
+    private_key = file("${path.module}/../.ssh/id_rsa")
   }
   provisioner "remote-exec" {
     inline = [
@@ -71,7 +71,7 @@ resource "aws_instance" "swarm_worker" {
     host = coalesce(self.public_ip, self.private_ip)
     type = "ssh"
     user = "ubuntu"
-    private_key = file("${path.module}/id_rsa")
+    private_key = file("${path.module}/../.ssh/id_rsa")
   }
   provisioner "file" {
     source = "id_rsa"

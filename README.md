@@ -7,6 +7,10 @@
 Here is the basic setup to run up docker swarm cluster in AWS using the Terraform.
 [Terraform](https://www.terraform.io) is a tool for building, changing, and versioning infrastructure safely and efficiently. Terraform can manage existing and popular service providers as well as custom in-house solutions. Using Terraform helps to create the infrastructure you can change, and trace safely and efficiently. A small swarm cluster will be created during startup. One swarm manager + two swarm workers. In the  *app-instances.tf* you will find the configuration. The swarm is initiated during provisioning. All other swarm agents (workers) will connect to the manager by a token, generated during the swarm initialisation. The trick is we should do it automatically, but we don't know the token before the initialisation. To send the token to the agents, I copy it to a file on the swarm manager and do "scp" to the manager host from the agent's machines.
 
+For storage, we provision an EFS drive that gets attached via docker volumes to various stacks when they are deployed.  We have some helpers for this, but the solution allows us to have flexible, backed-up storage on AWS that is accessible to containers seamlessly as a filesystem mount. 
+
+Currently I have not set up a backup plan, but that is a good idea for a #TODO. https://us-west-2.console.aws.amazon.com/backup/home. Ideally this would be set up as well in TF. 
+
 ## Installation
 How to install terraform you can find [here](https://www.terraform.io/intro/getting-started/install.html). Or you can using a Docker image to keep your environment clear. For example, [this one](https://hub.docker.com/r/amontaigu/terraform/).
 
